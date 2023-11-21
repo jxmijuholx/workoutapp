@@ -17,7 +17,7 @@ export default function WorkoutsList() {
             field: "date",
             sortable: true,
             filter: true,
-            valueGetter: (params) => format(new Date(params.data.date), 'dd/MM/yyyy')
+            valueGetter: (params) => format(new Date(params.data.date), 'dd/MM/yyyy hh:mm')
         },
         { headerName: "Customer", field: "customer", sortable: true, filter: true },
     ];
