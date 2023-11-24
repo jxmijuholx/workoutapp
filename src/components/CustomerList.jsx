@@ -4,7 +4,7 @@ import { AgGridReact } from 'ag-grid-react';
 import React, { useEffect, useState } from 'react';
 import AddCustomer from './AddCustomer';
 import DeleteCustomer from './DeleteCustomer';
-import EditCustomer from './EditCustomer';
+
 
 export default function CustomerList() {
 
@@ -66,7 +66,7 @@ export default function CustomerList() {
 
     return (
         <div className="ag-theme-material" style={{ height: 700, width: '100%', margin: 'auto' }}>
-            <AddCustomer saveCustomer={updateCustomer} />
+            <AddCustomer setMsg={setMsg} getCustomers={getCustomers} />
             <AgGridReact
                 rowData={customers}
                 columnDefs={columns}

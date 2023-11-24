@@ -4,6 +4,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 
 export default function AddCustomer(props) {
+    const url = 'https://traineeapp.azurewebsites.net/api/customers'
 
     const [open, setOpen] = useState(false);
 
@@ -29,8 +30,25 @@ export default function AddCustomer(props) {
         setCustomer({ ...customer, [e.target.name]: e.target.value });
     };
 
-    const addCustomer = () => {
-        props.saveCustomer(customer);
+    const addCustomer = async () => {
+        console.log(customer);
+        const addCustomer = (customer, link) => {
+            fetch(link, {
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json'
+                },
+                body: JSON.stringify(customer)
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        props.setMsg('Customer added');
+                        props.getCustomers();
+                    }
+                })
+                .catch((err) => console.error(err));
+        }
+        await addCustomer(customer, url);
         handleClose();
     }
 
