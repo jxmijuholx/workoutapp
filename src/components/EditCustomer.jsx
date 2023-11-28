@@ -4,7 +4,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 
 
-export default function EditCustomer(){
+export default function EditCustomer(props){
 
     const [open, setOpen] = useState(false);
 
