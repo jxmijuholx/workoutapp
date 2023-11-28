@@ -4,6 +4,8 @@ import { AgGridReact } from 'ag-grid-react';
 import React, { useEffect, useState } from 'react';
 import AddCustomer from './AddCustomer';
 import DeleteCustomer from './DeleteCustomer';
+import EditCustomer from './EditCustomer';
+
 
 
 export default function CustomerList() {
@@ -29,12 +31,25 @@ export default function CustomerList() {
         {
             headerName: 'Delete',
             field: 'links.self.href',
-            width: 90,
+            width: 100,
             cellRenderer: (params) => (
-                <DeleteCustomer params={params} getCustomers={getCustomers} />
+                <DeleteCustomer 
+                params={params} 
+                getCustomers={getCustomers} />
             ),
         },
-    ];
+            {
+                headerName: 'Edit',
+                field: 'links.self.href',
+                width: 100,
+                cellRenderer: (params) => (
+                    <EditCustomer
+                    params={params}
+                        updateCustomer={updateCustomer}
+                    />
+                )
+            }
+        ];
 
 
     const getCustomers = () => {
@@ -46,8 +61,8 @@ export default function CustomerList() {
             });
     }
 
-    const updateCustomer = (customer, link) => {
-        fetch(link, {
+       const updateCustomer = (customer, link) => {
+        fetch(url, {
             method: 'PUT',
             headers: {
                 'Content-type': 'application/json'
@@ -62,7 +77,26 @@ export default function CustomerList() {
                 }
             })
             .catch((err) => console.error(err));
-    }
+    };
+
+    const saveCustomer = (newCustomer) => {
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify(newCustomer)
+        })
+            .then((response) => {
+                if (response.ok) {
+                    setMsg('Customer added');
+                    setOpen(true);
+                    getCustomers();
+                }
+            })
+            .catch((err) => console.error(err));
+    };
+
 
     return (
         <div className="ag-theme-material" style={{ height: 700, width: '100%', margin: 'auto' }}>
@@ -71,7 +105,7 @@ export default function CustomerList() {
                 rowData={customers}
                 columnDefs={columns}
                 pagination={true}
-                paginationPageSize={20}
+                paginationPageSize={30}
                 suppressCellSelection={true}
                 rowHeight={30}
             />

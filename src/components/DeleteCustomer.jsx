@@ -1,12 +1,18 @@
-
-import React from 'react';
-import { Button } from '@mui/material';
+import React, { useState } from 'react';
+import { Button, Snackbar } from '@mui/material';
+import Alert from '@mui/material/Alert';  // Import Alert from Material-UI
 
 export default function DeleteCustomer({ params, getCustomers }) {
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+    const handleCloseSnackbar = () => {
+        setSnackbarOpen(false);
+    };
+
     const deleteCustomer = () => {
         if (window.confirm('Are you sure?')) {
-            console.log('params.data:', params.data);
-
             const customerLink =
                 params.data &&
                 params.data.links &&
@@ -17,22 +23,44 @@ export default function DeleteCustomer({ params, getCustomers }) {
                 fetch(customerLink, { method: 'DELETE' })
                     .then((response) => {
                         if (response.ok) {
-                            alert('Customer deleted');
+                            setSnackbarSeverity('success');
+                            setSnackbarMessage('Customer deleted successfully');
+                            setSnackbarOpen(true);
                             getCustomers();
                         } else {
-                            console.error('Error deleting customer:', response.status, response.statusText);
+                            setSnackbarSeverity('error');
+                            setSnackbarMessage(`Error deleting customer: ${response.status} ${response.statusText}`);
+                            setSnackbarOpen(true);
                         }
                     })
-                    .catch((err) => console.error('Error deleting customer:', err));
+                    .catch((err) => {
+                        setSnackbarSeverity('error');
+                        setSnackbarMessage(`Error deleting customer: ${err.message}`);
+                        setSnackbarOpen(true);
+                    });
             } else {
-                console.error('Invalid customer link');
+                setSnackbarSeverity('error');
+                setSnackbarMessage('Invalid customer link');
+                setSnackbarOpen(true);
             }
         }
     };
 
     return (
-        <Button variant="outlined" color="primary" onClick={deleteCustomer}>
-            Delete
-        </Button>
+        <>
+            <Button variant="outlined" color="primary" onClick={deleteCustomer}>
+                Delete
+            </Button>
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            >
+                <Alert severity={snackbarSeverity} onClose={handleCloseSnackbar}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
+        </>
     );
 }
