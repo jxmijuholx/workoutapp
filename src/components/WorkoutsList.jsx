@@ -4,6 +4,7 @@ import { AgGridReact } from 'ag-grid-react';
 import React, { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import DeleteWorkout from './DeleteWorkout';
+import AddWorkout from './AddWorkout';
 
 export default function WorkoutsList() {
   const [workouts, setWorkouts] = useState([]);
@@ -19,7 +20,7 @@ export default function WorkoutsList() {
       .then((responseData) => {
         const promises = responseData.content.map((workout) => {
           const customerLink = workout.links.find((link) => link.rel === 'customer');
-
+  
           if (customerLink) {
             return fetch(customerLink.href)
               .then((response) => response.json())
@@ -35,10 +36,13 @@ export default function WorkoutsList() {
             return Promise.resolve(workout);
           }
         });
-
-        Promise.all(promises).then((updatedWorkouts) => setWorkouts(updatedWorkouts));
+  
+        Promise.all(promises).then((updatedWorkouts) => {
+          setWorkouts(updatedWorkouts);
+        });
       });
   };
+  
 
   const columns = [
     { headerName: 'Activity', field: 'activity', sortable: true, filter: true },
@@ -61,6 +65,7 @@ export default function WorkoutsList() {
 
   return (
     <div className="ag-theme-material" style={{ height: 700, width: '100%', margin: 'auto' }}>
+      <AddWorkout getWorkouts={getWorkouts}/>
       <AgGridReact
         rowData={workouts}
         columnDefs={columns}

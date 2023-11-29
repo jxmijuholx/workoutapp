@@ -38,17 +38,17 @@ export default function CustomerList() {
                 getCustomers={getCustomers} />
             ),
         },
-            {
-                headerName: 'Edit',
-                field: 'links.self.href',
-                width: 100,
-                cellRenderer: (params) => (
-                    <EditCustomer
-                    params={params}
-                        updateCustomer={updateCustomer}
-                    />
-                )
-            }
+        {
+          headerName: 'Edit',
+          field: 'links',
+          width: 100,
+          cellRenderer: (params) => (
+              <EditCustomer
+                  customer={params.data}
+                  updateCustomer={(customer) => updateCustomer(customer, params.data.links[0].href)}
+              />
+          ),
+      },
         ];
 
 
@@ -61,24 +61,29 @@ export default function CustomerList() {
             });
     }
 
-       const updateCustomer = (customer, link) => {
-        fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Content-type': 'application/json'
-            },
-            body: JSON.stringify(customer)
-        })
-            .then((response) => {
-                if (response.ok) {
-                    setMsg('Customer updated');
-                    setOpen(true);
-                    getCustomers();
-                }
-            })
-            .catch((err) => console.error(err));
-    };
-
+    const updateCustomer = (customer, url) => {
+      if (!url) {
+          console.error('Link is undefined or null.');
+          return;
+      }
+  
+      fetch(url, {
+          method: 'PUT',
+          headers: {
+              'Content-type': 'application/json'
+          },
+          body: JSON.stringify(customer)
+      })
+      .then((response) => {
+          if (response.ok) {
+              setMsg('Customer updated');
+              setOpen(true);
+              getCustomers();
+          }
+      })
+      .catch((err) => console.error(err));
+  };
+  
     const saveCustomer = (newCustomer) => {
         fetch(url, {
             method: 'POST',
