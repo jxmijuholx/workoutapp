@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem } from '@mui/material';
 
-
-export default function AddWorkout(props) {
+export default function AddWorkout({ params, getWorkouts, setMsg }) {
     const url = 'https://traineeapp.azurewebsites.net/api/trainings';
     const customersUrl = 'https://traineeapp.azurewebsites.net/api/customers';
 
@@ -10,12 +9,12 @@ export default function AddWorkout(props) {
         date: '',
         duration: '',
         activity: '',
-        customer: '',
+        customer: params?.customer || ''
     });
 
-    const [open, setOpen] = useState(false);
-
     const [customers, setCustomers] = useState([]);
+    const [openAddWorkout, setOpenAddWorkout] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
 
     useEffect(() => {
         fetch(customersUrl)
@@ -23,6 +22,8 @@ export default function AddWorkout(props) {
             .then((data) => setCustomers(data.content))
             .catch((error) => console.error(error));
     }, []);
+
+    const [open, setOpen] = useState(false);
 
     const handleOpen = () => {
         setOpen(true);
@@ -48,8 +49,8 @@ export default function AddWorkout(props) {
             });
 
             if (response.ok) {
-                await props.getWorkouts();
-                props.setMsg('Workout added');
+                await getWorkouts();
+                setMsg('Workout added');
             } else {
                 console.error('Failed to add workout');
             }
@@ -59,10 +60,14 @@ export default function AddWorkout(props) {
         handleClose();
     };
 
-
     return (
         <div>
-            <Button style={{ margin: 10 }} variant="outlined" color="primary" onClick={handleOpen}>
+            <Button
+                style={{ margin: 10 }}
+                variant="outlined"
+                color="primary"
+                onClick={handleOpen}
+            >
                 Add Workout
             </Button>
 
@@ -82,7 +87,6 @@ export default function AddWorkout(props) {
                             shrink: true,
                         }}
                     />
-
                     <TextField
                         margin="dense"
                         name="duration"
@@ -91,7 +95,6 @@ export default function AddWorkout(props) {
                         label="Duration"
                         fullWidth
                     />
-
                     <TextField
                         margin="dense"
                         name="activity"
@@ -100,7 +103,6 @@ export default function AddWorkout(props) {
                         label="Activity"
                         fullWidth
                     />
-
                     <TextField
                         margin="dense"
                         name="customer"
@@ -117,15 +119,13 @@ export default function AddWorkout(props) {
                         ))}
                     </TextField>
                 </DialogContent>
-
                 <DialogActions>
-                    <Button onClick={() => { handleClose(); props.setMsg('Canceled'); }} color="primary">
+                    <Button onClick={handleClose} color="primary">
                         Cancel
                     </Button>
-                    <Button onClick={() => { addWorkout(); props.getWorkouts(); props.setMsg('Workout added'); }} color="primary">
+                    <Button onClick={() => addWorkout()} color="primary">
                         Save
                     </Button>
-
                 </DialogActions>
             </Dialog>
         </div>
