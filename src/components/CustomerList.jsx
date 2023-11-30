@@ -34,35 +34,34 @@ export default function CustomerList() {
             field: 'links.self.href',
             width: 100,
             cellRenderer: (params) => (
-                <DeleteCustomer
-                    params={params}
-                    getCustomers={getCustomers} />
+                <DeleteCustomer 
+                params={params} 
+                getCustomers={getCustomers} />
             ),
         },
         {
-            headerName: 'Edit',
-            field: 'links',
-            width: 100,
-            cellRenderer: (params) => (
-                <EditCustomer
-                    customer={params.data}
-                    updateCustomer={(customer) => updateCustomer(customer, params.data.links[0].href)}
-                />
-            ),
-        },
-        {
-            headerName: '+ Workout',
-            field: 'links',
-            width: 100,
-            cellRenderer: (params) => (
-                <AddWorkoutCustomer
-                    customer={params.data}
-                    updateCustomer={(customer) => updateCustomer(customer, params.data.links[0].href)}
-                    selectedCustomer={params.data}
-                />
-            ),
-        },
-    ];
+          headerName: 'Edit',
+          field: 'links',
+          width: 100,
+          cellRenderer: (params) => (
+              <EditCustomer
+                  customer={params.data}
+                  updateCustomer={(customer) => updateCustomer(customer, params.data.links[0].href)}
+              />
+          ),
+      }, 
+      {
+        headerName: 'Add workout',
+        field: 'links',
+        width: 100,
+        cellRenderer: (params) => (
+            <AddWorkoutCustomer
+                params={params} // Make sure to pass the correct prop name
+                saveCustomer={(customer) => saveCustomer(customer)}
+            />
+        ),
+    },
+        ];
 
 
     const getCustomers = () => {
@@ -75,49 +74,44 @@ export default function CustomerList() {
     }
 
     const updateCustomer = (customer, url) => {
-        if (!url) {
-            console.error('Link is undefined or null.');
-            return;
-        }
-
+      if (!url) {
+          console.error('Link is undefined or null.');
+          return;
+      }
+  
+      fetch(url, {
+          method: 'PUT',
+          headers: {
+              'Content-type': 'application/json'
+          },
+          body: JSON.stringify(customer)
+      })
+      .then((response) => {
+          if (response.ok) {
+              setMsg('Customer updated');
+              setOpen(true);
+              getCustomers();
+          }
+      })
+      .catch((err) => console.error(err));
+  };
+  
+    const saveCustomer = (newCustomer) => {
         fetch(url, {
-            method: 'PUT',
+            method: 'POST',
             headers: {
                 'Content-type': 'application/json'
             },
-            body: JSON.stringify(customer)
+            body: JSON.stringify(newCustomer)
         })
             .then((response) => {
                 if (response.ok) {
-                    setMsg('Customer updated');
+                    setMsg('Customer added');
                     setOpen(true);
                     getCustomers();
                 }
             })
             .catch((err) => console.error(err));
-    };
-
-    const handleSave = () => {
-        const newWorkout = {
-            date: workout.date,
-            activity: workout.activity,
-            duration: workout.duration,
-            customer: selectedCustomer.links[0].href,
-        };
-
-        fetch(workoutsUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newWorkout),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                updateWorkouts(data);
-                handleClose();
-            })
-            .catch((error) => console.error('Error:', error));
     };
 
 

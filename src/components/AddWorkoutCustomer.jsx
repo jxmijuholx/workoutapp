@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem } from '@mui/material';
 
-export default function AddWorkout({ params, getWorkouts, setMsg }) {
+export default function AddWorkoutCustomer({ params, getWorkouts, setMsg }) {
     const url = 'https://traineeapp.azurewebsites.net/api/trainings';
     const customersUrl = 'https://traineeapp.azurewebsites.net/api/customers';
 
@@ -14,7 +14,7 @@ export default function AddWorkout({ params, getWorkouts, setMsg }) {
 
     const [customers, setCustomers] = useState([]);
     const [openAddWorkout, setOpenAddWorkout] = useState(false);
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [selectedCustomer, setSelectedCustomer] = useState(params.data); 
 
     useEffect(() => {
         fetch(customersUrl)
@@ -22,6 +22,17 @@ export default function AddWorkout({ params, getWorkouts, setMsg }) {
             .then((data) => setCustomers(data.content))
             .catch((error) => console.error(error));
     }, []);
+
+    useEffect(() => {
+        if (selectedCustomer) {
+            setCustomers([selectedCustomer]); 
+            setWorkout((prevWorkout) => ({
+                ...prevWorkout,
+                customer: selectedCustomer.links[0].href,
+            }));
+        }
+    }, [selectedCustomer]);
+
 
     const [open, setOpen] = useState(false);
 
