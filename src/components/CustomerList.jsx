@@ -6,6 +6,9 @@ import AddCustomer from './AddCustomer';
 import DeleteCustomer from './DeleteCustomer';
 import EditCustomer from './EditCustomer';
 import AddWorkoutCustomer from './AddWorkoutCustomer';
+import Papa from 'papaparse';
+import { saveAs } from 'file-saver';
+import { Button } from '@mui/material';
 
 
 
@@ -34,34 +37,50 @@ export default function CustomerList() {
             field: 'links.self.href',
             width: 100,
             cellRenderer: (params) => (
-                <DeleteCustomer 
-                params={params} 
-                getCustomers={getCustomers} />
+                <DeleteCustomer
+                    params={params}
+                    getCustomers={getCustomers} />
             ),
         },
         {
-          headerName: 'Edit',
-          field: 'links',
-          width: 100,
-          cellRenderer: (params) => (
-              <EditCustomer
-                  customer={params.data}
-                  updateCustomer={(customer) => updateCustomer(customer, params.data.links[0].href)}
-              />
-          ),
-      }, 
-      {
-        headerName: 'Add workout',
-        field: 'links',
-        width: 100,
-        cellRenderer: (params) => (
-            <AddWorkoutCustomer
-                params={params} // Make sure to pass the correct prop name
-                saveCustomer={(customer) => saveCustomer(customer)}
-            />
-        ),
-    },
-        ];
+            headerName: 'Edit',
+            field: 'links',
+            width: 100,
+            cellRenderer: (params) => (
+                <EditCustomer
+                    customer={params.data}
+                    updateCustomer={(customer) => updateCustomer(customer, params.data.links[0].href)}
+                />
+            ),
+        },
+        {
+            headerName: 'Add workout',
+            field: 'links',
+            width: 100,
+            cellRenderer: (params) => (
+                <AddWorkoutCustomer
+                    params={params} // Make sure to pass the correct prop name
+                    saveCustomer={(customer) => saveCustomer(customer)}
+                />
+            ),
+        },
+    ];
+
+    const exportToCSV = () => {
+        const customersToExport = customers.map(({ firstname, lastname, streetaddress, postcode, city, email, phone }) => ({
+            firstname,
+            lastname,
+            streetaddress,
+            postcode,
+            city,
+            email,
+            phone
+        }));
+
+        const csv = Papa.unparse(customersToExport);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        saveAs(blob, 'customers.csv');
+    };
 
 
     const getCustomers = () => {
@@ -74,28 +93,28 @@ export default function CustomerList() {
     }
 
     const updateCustomer = (customer, url) => {
-      if (!url) {
-          console.error('Link is undefined or null.');
-          return;
-      }
-  
-      fetch(url, {
-          method: 'PUT',
-          headers: {
-              'Content-type': 'application/json'
-          },
-          body: JSON.stringify(customer)
-      })
-      .then((response) => {
-          if (response.ok) {
-              setMsg('Customer updated');
-              setOpen(true);
-              getCustomers();
-          }
-      })
-      .catch((err) => console.error(err));
-  };
-  
+        if (!url) {
+            console.error('Link is undefined or null.');
+            return;
+        }
+
+        fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify(customer)
+        })
+            .then((response) => {
+                if (response.ok) {
+                    setMsg('Customer updated');
+                    setOpen(true);
+                    getCustomers();
+                }
+            })
+            .catch((err) => console.error(err));
+    };
+
     const saveCustomer = (newCustomer) => {
         fetch(url, {
             method: 'POST',
@@ -117,6 +136,9 @@ export default function CustomerList() {
 
     return (
         <div className="ag-theme-material" style={{ height: 700, width: '100%', margin: 'auto' }}>
+            <Button variant="contained" color="primary" onClick={exportToCSV}>
+                Export to CSV
+            </Button>
             <AddCustomer setMsg={setMsg} getCustomers={getCustomers} />
             <AgGridReact
                 rowData={customers}
