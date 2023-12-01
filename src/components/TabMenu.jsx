@@ -1,4 +1,5 @@
 import { CalendarViewMonth, Stairs } from '@mui/icons-material';
+import FunctionsIcon from '@mui/icons-material/Functions';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import Tab from '@mui/material/Tab';
@@ -13,6 +14,7 @@ export default function TabMenu({ value, onChange }) {
       <Tab icon={<PeopleAltIcon />} label="Customers" />
       <Tab icon={<CalendarViewMonth />} label="Calendar" />
       <Tab icon={<Stairs />} label="Statistics" />
+      <Tab icon={<FunctionsIcon />} label="Analytics" />
     </Tabs>
   );
 
