@@ -12,13 +12,34 @@ export default function WorkoutCalendar() {
     useEffect(() => {
         fetch(url)
             .then((response) => response.json())
-            .then((data) => {
-                const formattedEvents = data.content.map((training) => ({
-                    title: training.activity,
-                    start: new Date(training.date),
-                    end: new Date(new Date(training.date).getTime() + training.duration * 60000),
-                }));
-                setEvents(formattedEvents);
+            .then((responseData) => {
+                const promises = responseData.content.map((workout) => {
+                    const customerLink = workout.links.find((link) => link.rel === 'customer');
+
+                    if (customerLink) {
+                        return fetch(customerLink.href)
+                            .then((response) => response.json())
+                            .then((customerData) => {
+                                workout.customer = `${customerData.firstname} ${customerData.lastname}`;
+                                return workout;
+                            })
+                            .catch((error) => {
+                                console.error(`Error fetching customer data: ${error.message}`);
+                                return workout;
+                            });
+                    } else {
+                        return Promise.resolve(workout);
+                    }
+                });
+
+                Promise.all(promises).then((updatedWorkouts) => {
+                    const events = updatedWorkouts.map((workout) => ({
+                        title: `${workout.activity} - ${workout.customer}`,
+                        start: new Date(workout.date),
+                        end: new Date(new Date(workout.date).getTime() + workout.duration * 60000),
+                    }));
+                    setEvents(events);
+                });
             })
             .catch((error) => console.error(error));
     }, []);
