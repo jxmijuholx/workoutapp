@@ -35,7 +35,7 @@ export default function WorkoutAnalytics() {
             <thead>
                 <tr>
                     <th>Total workouts</th>
-                    <th>Total duration</th>
+                    <th>Total duration of workouts</th>
                     <th>Most common activity</th>
                 </tr>
             </thead>
